@@ -17,6 +17,18 @@ Measurement (:mod:`qiskit.ignis.measurement`)
 
 .. currentmodule:: qiskit.ignis.measurement
 
+Expectation Values
+==================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   ExpectationValue
+   ExpectationValueResult
+   expectation_value
+   pauli_diagonal
+
+
 Discriminator
 =============
 
@@ -31,6 +43,12 @@ The discriminators are used to to discriminate level one data into level two cou
    QuadraticIQDiscriminator
    SklearnIQDiscriminator
 """
+
+from .expval import (ExpectationValue,
+                     ExpectationValueResult,
+                     expectation_value,
+                     pauli_diagonal)
+
 from .discriminator import (DiscriminationFilter,
                             IQDiscriminationFitter,
                             LinearIQDiscriminator,
