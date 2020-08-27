@@ -15,7 +15,7 @@
 Measurement error mitigation module
 """
 
-from .meas_mitigator_experiment import MeasMitigator, MeasMitigatorResult
+from .meas_mitigator_experiment import MeasMitigation, MeasMitigationAnalysis
 
 from qiskit.ignis.mitigation import (CompleteMeasMitigator,
                                      TensoredMeasMitigator,

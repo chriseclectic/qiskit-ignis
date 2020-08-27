@@ -24,7 +24,7 @@ Expectation Values
    :toctree: ../stubs/
 
    ExpectationValue
-   ExpectationValueResult
+   ExpectationValueAnalysis
    expectation_value
    pauli_diagonal
 
@@ -45,12 +45,12 @@ The discriminators are used to to discriminate level one data into level two cou
 """
 
 from .expval import (ExpectationValue,
-                     ExpectationValueResult,
+                     ExpectationValueAnalysis,
                      expectation_value,
                      pauli_diagonal)
 
-from .mitigation import (MeasMitigator,
-                         MeasMitigatorResult,
+from .mitigation import (MeasMitigation,
+                         MeasMitigationAnalysis,
                          CompleteMeasMitigator,
                          TensoredMeasMitigator,
                          CTMPMeasMitigator,

@@ -22,11 +22,11 @@ from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 
 from qiskit.ignis.verification.tomography import combine_counts
-from qiskit.ignis.base import BaseExperiment
+from qiskit.ignis.base import Experiment
 
 from qiskit.result import Counts
 from qiskit.exceptions import QiskitError
-from qiskit.ignis.base import BaseExperimentResult
+from qiskit.ignis.base import Analysis
 
 from qiskit.ignis.verification.tomography import combine_counts
 
@@ -40,7 +40,7 @@ from qiskit.ignis.mitigation.measurement.ctmp_method.ctmp_generator_set import G
 logger = logging.getLogger(__name__)
 
 
-class MeasMitigator(BaseExperiment):
+class MeasMitigation(Experiment):
     """Measurement error mitigator calibration experiment."""
 
     # pylint: disable=arguments-differ
@@ -111,7 +111,7 @@ class MeasMitigator(BaseExperiment):
         return circ
 
 
-class MeasMitigatorResult(BaseExperimentResult):
+class MeasMitigationAnalysis(Analysis):
     """Measurement error mitigator calibration experiment result."""
 
     # pylint: disable=arguments-differ
