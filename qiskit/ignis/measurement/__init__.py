@@ -49,6 +49,13 @@ from .expval import (ExpectationValue,
                      expectation_value,
                      pauli_diagonal)
 
+from .mitigation import (MeasMitigator,
+                         MeasMitigatorResult,
+                         CompleteMeasMitigator,
+                         TensoredMeasMitigator,
+                         CTMPMeasMitigator,
+                         expectation_value)
+
 from .discriminator import (DiscriminationFilter,
                             IQDiscriminationFitter,
                             LinearIQDiscriminator,
