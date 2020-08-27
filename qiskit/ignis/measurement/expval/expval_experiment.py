@@ -23,13 +23,13 @@ from qiskit.exceptions import QiskitError
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
 
-from qiskit.ignis.base import BaseExperiment, BaseExperimentResult
+from qiskit.ignis.base import Experiment, Analysis
 from .pauli_method import pauli_generator, pauli_analyzer
 from .snapshot_method import snapshot_generator, snapshot_analyzer
 
 
-class ExpectationValue(BaseExperiment):
-    """Measurement error mitigator calibration experiment."""
+class ExpectationValue(Experiment):
+    """Expectation value experiment."""
 
     # pylint: disable=arguments-differ
     def __init__(self,
@@ -156,8 +156,8 @@ class ExpectationValue(BaseExperiment):
         return self._metadata
 
 
-class ExpectationValueResult(BaseExperimentResult):
-    """Measurement error mitigator calibration experiment."""
+class ExpectationValueAnalysis(Analysis):
+    """Expectation value experiment analysis."""
 
     # pylint: disable=arguments-differ
     def __init__(self,

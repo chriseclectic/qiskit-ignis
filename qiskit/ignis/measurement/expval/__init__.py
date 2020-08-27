@@ -15,4 +15,4 @@ Expectation Value Experiment
 """
 
 from .expval_utils import expectation_value, pauli_diagonal
-from .expval_experiment import ExpectationValue, ExpectationValueResult
+from .expval_experiment import ExpectationValue, ExpectationValueAnalysis
