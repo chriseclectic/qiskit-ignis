@@ -26,8 +26,8 @@ from qiskit.exceptions import QiskitError
 logger = logging.getLogger(__name__)
 
 
-class BaseExperimentResult(ABC):
-    """Base experiment result class."""
+class Analysis(ABC):
+    """Base experiment result analysis class."""
     def __init__(self,
                  experiment: str,
                  data: Optional[any] = None,

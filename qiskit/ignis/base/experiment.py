@@ -25,7 +25,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import BaseBackend
 
 
-class BaseExperiment(ABC):
+class Experiment(ABC):
     """Base experiment class."""
 
     # pylint: disable=arguments-differ

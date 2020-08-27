@@ -12,5 +12,5 @@
 
 """Qiskit Ignis Experiment base classes."""
 
-from .base_experiment import BaseExperiment
-from .base_result import BaseExperimentResult
+from .experiment import Experiment
+from .analysis import Analysis
