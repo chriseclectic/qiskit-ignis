@@ -15,7 +15,7 @@
 
 """Maximum-Likelihood estimation quantum state tomography fitter
 """
-from typing import List, Union
+from typing import List, Union, Optional
 import numpy as np
 from qiskit.result import Result
 from qiskit import QuantumCircuit
@@ -48,6 +48,7 @@ class StateTomographyFitter(TomographyFitter):
             method: str = 'auto',
             standard_weights: bool = True,
             beta: float = 0.5,
+            assignment_matrix: Optional[np.ndarray] = None,
             **kwargs) -> np.array:
         r"""Reconstruct a quantum state using CVXPY convex optimization.
 
@@ -111,6 +112,8 @@ class StateTomographyFitter(TomographyFitter):
                 tomography data based on count probability
             beta: (default: 0.5) hedging parameter for converting counts
                 to probabilities
+            assignment_matrix: Optional, full measurement error assignment
+                matrix for applying measurement error mitigation.
             **kwargs: kwargs for fitter method.
         Raises:
             QiskitError: In case the fitting method is unrecognized.
@@ -120,4 +123,5 @@ class StateTomographyFitter(TomographyFitter):
             \text{vec}(\text{rho}) - \text{data}||_2`.
         """
         return super().fit(method, standard_weights, beta,
-                           trace=1, psd=True, **kwargs)
+                           trace=1, psd=True,
+                           assignment_matrix=assignment_matrix, **kwargs)

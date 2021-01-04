@@ -118,6 +118,7 @@ class TomographyFitter:
             psd: bool = True,
             trace: Optional[int] = None,
             trace_preserving: bool = False,
+            assignment_matrix: Optional[np.array] = None,
             **kwargs) -> np.array:
         r"""Reconstruct a quantum state using CVXPY convex optimization.
 
@@ -195,6 +196,8 @@ class TomographyFitter:
                 trace preserving when fitting a Choi-matrix in quantum process
                 tomography. Note this method does not apply for 'lstsq' fitter
                 method.
+            assignment_matrix: Optional, full measurement error assignment
+                matrix for applying measurement error mitigation.
             **kwargs: kwargs for fitter method.
         Raises:
             QiskitError: In case the fitting method is unrecognized.
@@ -204,7 +207,8 @@ class TomographyFitter:
         """
         # Get fitter data
         data, basis_matrix, weights = self._fitter_data(standard_weights,
-                                                        beta)
+                                                        beta,
+                                                        assignment_matrix)
         # Choose automatic method
         if method == 'auto':
             self._check_for_sdp_solver()
@@ -286,14 +290,15 @@ class TomographyFitter:
             else:
                 self._data[tup] = counts
 
-    def _fitter_data(self, standard_weights, beta):
+    def _fitter_data(self, standard_weights, beta,
+                     assignment_matrix: Optional[np.ndarray] = None):
         """Generate tomography fitter data from a tomography data dictionary.
 
         Args:
             standard_weights (bool, optional): Apply weights to basis matrix
                 and data based on count probability (default: True)
-            beta (float): hedging parameter for 0, 1
-            probabilities (default: 0.5)
+            beta (float): hedging parameter for 0, 1 probabilities (default: 0.5)
+            assignment_matrix (np.ndarray, optional): readout error assignment matrix.
 
         Returns:
             tuple: (data, basis_matrix, weights) where `data`
@@ -362,6 +367,8 @@ class TomographyFitter:
                 meas_label = label
             prep_op = self._preparation_op(prep_label, preparation)
             meas_ops = self._measurement_ops(meas_label, measurement)
+            if assignment_matrix is not None:
+                meas_ops = np.tensordot(assignment_matrix, meas_ops, axes=[1, 0])
             block = self._basis_operator_matrix(
                 [np.kron(prep_op.T, mop) for mop in meas_ops])
             basis_blocks.append(block)
@@ -482,7 +489,7 @@ class TomographyFitter:
 
     def _measurement_ops(self,
                          label: Tuple[str],
-                         meas_matrix_fn: Callable[[str, int], np.array]
+                         meas_matrix_fn: Callable[[str, int], np.array],
                          ) -> List[np.array]:
         """
         Return a list multi-qubit matrices for a measurement label.

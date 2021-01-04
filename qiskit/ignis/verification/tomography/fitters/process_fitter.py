@@ -17,6 +17,7 @@
 Maximum-Likelihood estimation quantum process tomography fitter
 """
 
+from typing import Optional
 import numpy as np
 from qiskit import QiskitError
 from qiskit.quantum_info.operators import Choi
@@ -32,6 +33,7 @@ class ProcessTomographyFitter(TomographyFitter):
             method: str = 'auto',
             standard_weights: bool = True,
             beta: float = 0.5,
+            assignment_matrix: Optional[np.ndarray] = None,
             **kwargs) -> Choi:
         r"""Reconstruct a quantum channel using CVXPY convex optimization.
 
@@ -113,6 +115,8 @@ class ProcessTomographyFitter(TomographyFitter):
                 to tomography data based on count probability
             beta: (default: 0.5) hedging parameter for converting counts
                 to probabilities
+            assignment_matrix: Optional, full measurement error assignment
+                matrix for applying measurement error mitigation.
             **kwargs: kwargs for fitter method.
 
         Raises:
@@ -127,7 +131,8 @@ class ProcessTomographyFitter(TomographyFitter):
         """
         # Get fitter data
         data, basis_matrix, weights = self._fitter_data(standard_weights,
-                                                        beta)
+                                                        beta,
+                                                        assignment_matrix)
 
         # Calculate trace of Choi-matrix from projector length
         _, cols = np.shape(basis_matrix)
