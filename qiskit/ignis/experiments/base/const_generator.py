@@ -29,38 +29,33 @@ class ConstantGenerator(Generator):
                  name: str,
                  circuits: List[QuantumCircuit],
                  metadata: Optional[List[Dict[str, any]]] = None,
-                 qubits: Optional[List[int]] = None):
+                 physical_qubits: Optional[List[int]] = None):
 
         # Format circuits
-        if not isinstance(circuits, list):
+        if isinstance(circuits, QuantumCircuit):
             circuits = [circuits]
         if not circuits:
             raise QiskitError("Input circuit list is empty")
         self._circuits = circuits
 
         # Format metadata
-        if metadata is None:
-            metadata = len(circuits) * [{}]
-        if not isinstance(metadata, list):
-            metadata = [metadata]
-        self._metadata = metadata
+        if metadata:
+            if isinstance(metadata, dict):
+                metadata = [metadata]
+            if len(metadata) != len(self._circuits):
+                raise QiskitError("Input metadata list is not same length as circuit list")
+            for i, meta in enumerate(metadata):
+                self._circuits[i].metadata = meta
 
-        # Get qubits
+        # Set num qubits and physical qubits
+        num_qubits = self._circuits[0].num_qubits
+        for circ in self._circuits[1:]:
+            if circ.num_qubits != num_qubits:
+                raise QiskitError("Input circuits must all have same number of qubits.")
+
         if qubits is None:
             qubits = list(range(circuits[0].num_qubits))
-        super().__init__(name, qubits)
+        super().__init__(name, qubits, physical_qubits=physical_qubits)
 
-        # Validation
-        if len(self._circuits) != len(metadata):
-            raise QiskitError("Input circuits and metadata lists are not the same length.")
-        for circ in self._circuits:
-            if circ.num_qubits != len(self.qubits):
-                raise QiskitError("Input circuits have different numbers of qubits.")
-
-    def circuits(self) -> List[QuantumCircuit]:
-        """Return a list of experiment circuits."""
+    def _generate_circuits(self, **params) -> List[Dict[str, any]]:
         return self._circuits
-
-    def _extra_metadata(self) -> List[Dict[str, any]]:
-        """Generate a list of experiment metadata dicts."""
-        return self._metadata

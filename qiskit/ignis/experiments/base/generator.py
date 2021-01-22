@@ -16,31 +16,43 @@ Base Experiment Generator class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Union, List, Dict
-from numpy import integer
+from typing import  List, Dict, Optional
 
 from qiskit import QuantumCircuit
+from qiskit import transpile
 from qiskit.exceptions import QiskitError
 
 
 class Generator(ABC):
-    """Base generator class."""
+    """Base generator class.
+    
+    At minimum subclasses must implement the abstract method
+    ``_generate_circuits(self, **params)`` which should return a list of
+    quantum circuits containing any metadata needed for analysis in each
+    ``circuit.metadata`` dictionary.
 
-    def __init__(self, name: str, qubits: Union[int, List[int]]):
+    Optionally a class may also override the ``metadata(self, **params)``
+    method which returns the list of metadata dictionaries obtained from
+    each circuit. If this method is not implemented calling it will extract
+    metadata from the generated circuits.
+    """
+
+    def __init__(self, name: str,
+                 num_qubits: int,
+                 physical_qubits: Optional[List[int]] = None):
         """Initialize an experiment.
 
         Args:
             name: experiment name
-            qubits: the number of qubits, or list of physical qubits for the experiment.
+            num_qubits: number of active qubits for the generator
+            physical_qubits: the physical qubit mapping for active qubits.
         """
         # Circuit generation parameters
         self._name = str(name)
-        if isinstance(qubits, (int, integer)):
-            self._num_qubits = int(qubits)
-            self._qubits = list(range(self._num_qubits))
-        else:
-            self._qubits = list(qubits)
-            self._num_qubits = len(self._qubits)
+        self._num_qubits = num_qubits
+        self._physical_qubits = None
+        if physical_qubits:
+            self.qubits = physical_qubits
 
     @property
     def name(self) -> str:
@@ -55,28 +67,34 @@ class Generator(ABC):
     @property
     def qubits(self) -> List[int]:
         """Return the qubits for this experiment."""
+        if self._qubits is None:
+            return list(range(self._num_qubits))
         return self._qubits
 
     @qubits.setter
     def qubits(self, value):
         """Set the qubits for this experiment."""
-        if len(value) != self._num_qubits:
-            raise QiskitError("Length of qubits does not match Generator qubit number.")
-        self._qubits = list(value)
+        if value is not None:
+            if len(value) != self._num_qubits:
+                raise QiskitError(
+                    "Length of physical qubits does not match Generator qubit number.")
+            value = list(value)
+        self._qubits = value
 
-    @abstractmethod
-    def circuits(self) -> List[QuantumCircuit]:
+    def circuits(self, **params) -> List[QuantumCircuit]:
         """Return a list of experiment circuits."""
+        qubits = self.qubits
+        circuits = self._generate_circuits(**params)
+        if self._qubits:
+            circuits = transpile(circuits,
+                                 initial_layout=qubits,
+                                 optimization_level=0)
+        return circuits
 
-    def metadata(self) -> List[Dict[str, any]]:
+    def metadata(self, **params) -> List[Dict[str, any]]:
         """Generate a list of experiment metadata dicts."""
-        metadata = self._extra_metadata()
-        for meta in metadata:
-            meta['name'] = self.name
-            meta['qubits'] = self.qubits
-        return metadata
+        return [circ.metadata for circ in self._generate_circuits(**params)]
 
     @abstractmethod
-    def _extra_metadata(self) -> List[Dict[str, any]]:
-        """Generate a list of experiment metadata dicts."""
-        # TODO: Add metadata to QuantumCircuit objects in Terra
+    def _generate_circuits(self, **params) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits."""
