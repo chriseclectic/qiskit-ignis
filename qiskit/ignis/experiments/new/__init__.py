@@ -22,3 +22,5 @@ from .parallel_experiment import (ParallelAnalysis,
 from .batch_experiment import (BatchAnalysis,
                                BatchExperiment,
                                BatchExperimentData)
+
+from .qst_experiment import QSTExperiment, QSTAnalysis
