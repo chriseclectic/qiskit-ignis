@@ -42,28 +42,6 @@ class ParallelExperimentData(ExperimentData):
             expr._data_class(expr) for expr in self._experiment._experiments
         ]
 
-    def __repr__(self):
-        sub_types = []
-        sub_ids = []
-        sub_qubits = []
-        for expr in self._sub_exp_data:
-            sub_types.append(expr.experiment_type)
-            sub_ids.append(expr.experiment_id)
-            sub_qubits.append(expr.experiment().physical_qubits)
-        n_res = len(self._analysis_results)
-
-        ret = f'Experiment: {self.experiment_type}'
-        ret += f'\nExperiment ID: {self.experiment_id}'
-        ret += f'\nStatus: Complete'
-        ret += f'\nSub Experiments: {sub_types}'
-        ret += f'\nSub Experiments IDs: {sub_ids}'
-        ret += f'\nQubits: {sub_qubits}'
-        ret += f'\nData: {len(self._data)}'
-        ret += f'\nAnalysis Results: {n_res}'
-        if n_res:
-            ret += f'\nLast Analysis Result:\n{repr(self._analysis_results[-1])}'
-        return ret
-
     def experiment_data(self, index: Union[int, slice]):
         """Return sub experiments"""
         return self._sub_exp_data[index]
@@ -94,12 +72,25 @@ class ParallelAnalysis(BaseAnalysis):
         if not isinstance(experiment_data, ParallelExperimentData):
             raise QiskitError("ParallelAnalysis must be run on ParallelExperimentData.")
 
-        parallel_results = []
+        # Run analysis for sub-experiments
         for sub_exp_data in experiment_data._sub_exp_data:
-            sub_result = sub_exp_data.analysis().run()
-            parallel_results.append(sub_result)
+            sub_exp_data.analysis(**params).run()
 
-        return AnalysisResult({'parallel_results': parallel_results})
+        # Add sub-experiment metadata as result of batch experiment
+        # Note: if Analysis results had ID's these should be included here
+        # rather than just the sub-experiment IDs
+        sub_types = []
+        sub_ids = []
+        sub_qubits = []
+        for expr in experiment_data._sub_exp_data:
+            sub_types.append(expr.experiment_type)
+            sub_ids.append(expr.experiment_id)
+            sub_qubits.append(expr.experiment().physical_qubits)
+
+        return AnalysisResult({
+            'experiment_types': sub_types,
+            'experiment_ids': sub_ids,
+            'experiment_qubits': sub_qubits})
 
 
 class ParallelExperiment(BaseExperiment):
@@ -118,7 +109,7 @@ class ParallelExperiment(BaseExperiment):
         for exp in self._experiments:
             joint_qubits += exp.physical_qubits
 
-        super().__init__("parallel_experiment",
+        super().__init__(type(self).__name__,
                          joint_qubits,
                          analysis_class=ParallelAnalysis,
                          data_class=ParallelExperimentData)

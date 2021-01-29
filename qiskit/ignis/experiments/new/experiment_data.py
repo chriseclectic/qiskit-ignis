@@ -54,15 +54,20 @@ class ExperimentData:
         self._analysis_results = []
 
     def __repr__(self):
+        line = 51 * '-'
         n_res = len(self._analysis_results)
-        ret = f'Experiment: {self.experiment_type}'
+        ret = line
+        ret += f'\nExperiment: {self.experiment_type}'
         ret += f'\nExperiment ID: {self.experiment_id}'
         ret += f'\nStatus: Complete'
         ret += f'\nQubits: {self._experiment.physical_qubits}'
-        ret += f'\nData: {len(self._data)}'
-        ret += f'\nAnalysis Results: {n_res}'
+        ret += f'\nRun Circuits: {len(self._data)}'
+        ret += f'\nRun Analysis: {n_res}'
+        ret += '\n' + line
         if n_res:
-            ret += f'\nLast Analysis Result:\n{repr(self._analysis_results[-1])}'
+            ret += '\nLast Analysis Result'
+            for key, value in self._analysis_results[-1].items():
+                ret += f'\n- {key}: {value}'
         return ret
 
     @property

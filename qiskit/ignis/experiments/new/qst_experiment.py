@@ -86,7 +86,7 @@ class QSTAnalysis(BaseAnalysis):
         rho = lstsq_fit(data, basis_matrix,
                         weights=weights,
                         **params)
-        return AnalysisResult({'rho': DensityMatrix(rho)})
+        return AnalysisResult({'value': DensityMatrix(rho)})
 
 def _fitter_data(experiment_data, standard_weights, beta):
     """Generate tomography fitter data from a tomography data dictionary."""
