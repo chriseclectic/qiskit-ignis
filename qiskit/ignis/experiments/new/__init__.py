@@ -18,3 +18,7 @@ from .base_experiment import AnalysisFunction
 from .parallel_experiment import (ParallelAnalysis,
                                   ParallelExperiment,
                                   ParallelExperimentData)
+
+from .batch_experiment import (BatchAnalysis,
+                               BatchExperiment,
+                               BatchExperimentData)
